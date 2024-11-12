@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const OpenAI = require('openai');
 const RecipeService = require('./services/RecipeService');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Initialize OpenAI client with API key
 const openai = new OpenAI({
