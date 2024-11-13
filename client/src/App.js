@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import headerImage from './assets/header.png';
 import UpdateRecipe from './UpdateRecipe';
+import AddRecipe from './AddRecipe';
 
 function getRandomColor() {
   const colors = ['#D6D46D', '#F4DFB6', '#DE8F5F', '#9A4444'];
@@ -14,6 +15,7 @@ function App() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(null); // Track active card clicked
   const [selectedRecipe, setSelectedRecipe] = useState(null); // Track recipe being edited
+  const [showAddForm, setShowAddForm] = useState(false); // Toggle add form
 
   useEffect(() => {
     fetchRecipes();
@@ -52,6 +54,15 @@ function App() {
     }
   };
 
+  const handleAddRecipeClick = () => {
+    setShowAddForm(true); // Show the AddRecipe form
+  };
+
+  const handleAddComplete = () => {
+    setShowAddForm(false); // Hide the form after adding a new recipe
+    fetchRecipes(); // Refresh recipes to show the new recipe
+  };
+
   const handleUpdateComplete = () => {
     setSelectedRecipe(null); // Close the UpdateRecipe form after update
     fetchRecipes(); // Refresh recipes to show updated data
@@ -73,10 +84,12 @@ function App() {
             className="search-input"
           />
         </div>
-        <button className="add-button">Add Recipe</button>
+        <button className="add-button" onClick={handleAddRecipeClick}>Add Recipe</button>
       </div>
 
-      {selectedRecipe ? (
+      {showAddForm ? (
+        <AddRecipe onAdd={handleAddComplete} />
+      ) : selectedRecipe ? (
         <UpdateRecipe recipe={selectedRecipe} onUpdate={handleUpdateComplete} />
       ) : (
         <div className="recipes">
