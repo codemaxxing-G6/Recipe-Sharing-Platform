@@ -22,7 +22,7 @@ A web platform that allows users to browse and share recipes. Users can interact
 
 - **Back-end**: Node.js
 - **Front-end**: React
-- **Database**: MongoDB or Firebase
+- **Database**: MongoDB
 - **Deployment**: Render (or similar)
 
 ## Team Members
