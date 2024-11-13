@@ -12,7 +12,7 @@
   }
   
   /* Container */
-  .update-recipe {
+  .add-recipe {
     background-color: var(--neutral-cream);
     color: var(--dark-chocolate);
     padding: 2rem;
@@ -23,25 +23,25 @@
     margin: 2rem auto;
   }
   
-  .update-title {
+  .add-title {
     font-size: 1.5rem;
     color: var(--dark-chocolate);
     text-align: center;
     margin-bottom: 1rem;
   }
   
-  .update-form {
+  .add-form {
     display: flex;
     flex-direction: column;
   }
   
-  .update-label {
+  .add-label {
     font-weight: bold;
     color: var(--dark-chocolate);
     margin-bottom: 0.5rem;
   }
   
-  .update-input, .update-textarea {
+  .add-input, .add-textarea {
     padding: 0.5rem;
     border: 1px solid var(--neutral-gray);
     border-radius: 5px;
@@ -51,12 +51,12 @@
     background-color: var(--extra-light-chocolate);
   }
   
-  .update-textarea {
+  .add-textarea {
     height: 100px;
     resize: vertical;
   }
   
-  .update-button {
+  .add-button {
     background-color: var(--dark-chocolate);
     color: var(--neutral-cream);
     padding: 0.75rem;
@@ -67,7 +67,7 @@
     transition: background-color 0.3s;
   }
   
-  .update-button:hover {
+  .add-button:hover {
     background-color: var(--primary-orange);
   }
   

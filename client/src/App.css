@@ -10,6 +10,7 @@
   --dark-chocolate: #4B2E2A;
   --light-chocolate: #B6A28E;
   --extra-light-chocolate: #E4E0E1;
+  --random-colors: #D6D46D, #F4DFB6, #DE8F5F, #9A4444;
 }
 
 /* Reset */
@@ -85,7 +86,7 @@
 
 /* Recipes Section */
 .recipes {
-  display: flex;
+  display: flex; /* Use flexbox */
   flex-wrap: wrap;
   justify-content: center;
   gap: 20px;
@@ -128,8 +129,8 @@
   transition: opacity 0.3s ease-in-out;
   padding: 20px;
   text-align: center;
-  max-height: 100%;
-  overflow-y: auto;
+  max-height: 100%; /* Full height of card */
+  overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .recipe-card:hover .recipe-info {
@@ -184,20 +185,19 @@
   background-color: var(--primary-orange);
 }
 
-/* Buttons on hover */
-.recipe-card:hover .card-buttons {
-  display: flex;
-}
-
+/* Buttons on active card */
 .card-buttons {
-  display: none;
-  justify-content: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
   gap: 10px;
-  margin-top: 15px;
+  z-index: 1; /* Ensure buttons appear on top of card */
 }
 
-/* Button styling */
 .card-buttons button {
+  background-color: var(--secondary-olive);
   color: #fff;
   border: none;
   padding: 8px 12px;
@@ -209,5 +209,4 @@
 
 .card-buttons button:hover {
   background-color: var(--primary-orange);
-  opacity: 0.8;
 }

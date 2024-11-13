@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import headerImage from './assets/header.png';
 import UpdateRecipe from './UpdateRecipe';
+import AddRecipe from './AddRecipe';
 
 function getRandomColor() {
   const colors = ['#D6D46D', '#F4DFB6', '#DE8F5F', '#9A4444'];
@@ -12,51 +13,60 @@ function getRandomColor() {
 function App() {
   const [recipes, setRecipes] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [currentRecipe, setCurrentRecipe] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(null); // Track active card clicked
+  const [selectedRecipe, setSelectedRecipe] = useState(null); // Track recipe being edited
+  const [showAddForm, setShowAddForm] = useState(false); // Toggle add form
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        const response = await fetch('/recipes');
-        const data = await response.json();
-        setRecipes(data);
-      } catch (error) {
-        console.error('Error fetching recipes:', error);
-      }
-    };
-
     fetchRecipes();
   }, []);
+
+  const fetchRecipes = async () => {
+    try {
+      const response = await fetch('/recipes');
+      const data = await response.json();
+      setRecipes(data);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+    }
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
   };
 
-  const handleEdit = (recipe) => {
-    setCurrentRecipe(recipe);
-    setIsUpdating(true);
+  const handleCardClick = (index) => {
+    setActiveIndex(index === activeIndex ? null : index); // Toggle active state
   };
 
-  const handleDelete = async (id) => {
-  try {
-    await fetch(`/recipes/${id}`, { method: 'DELETE' });
-    setRecipes((prevRecipes) => prevRecipes.filter((recipe) => recipe._id !== id));
-  } catch (error) {
-    console.error('Error deleting recipe:', error);
-  }
-};
-
-  const handleUpdateSuccess = (updatedRecipe) => {
-    setRecipes((prevRecipes) =>
-      prevRecipes.map((recipe) => (recipe.id === updatedRecipe.id ? updatedRecipe : recipe))
-    );
-    setIsUpdating(false);
+  const handleEditClick = (recipe) => {
+    setSelectedRecipe(recipe); // Set the selected recipe object for editing
   };
 
-  if (isUpdating && currentRecipe) {
-    return <UpdateRecipe recipe={currentRecipe} onUpdateSuccess={handleUpdateSuccess} />;
-  }
+  const handleDeleteClick = async (recipeId) => {
+    try {
+      await fetch(`/recipes/${recipeId}`, {
+        method: 'DELETE',
+      });
+      fetchRecipes(); // Refresh recipes after deletion
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+    }
+  };
+
+  const handleAddRecipeClick = () => {
+    setShowAddForm(true); // Show the AddRecipe form
+  };
+
+  const handleAddComplete = () => {
+    setShowAddForm(false); // Hide the form after adding a new recipe
+    fetchRecipes(); // Refresh recipes to show the new recipe
+  };
+
+  const handleUpdateComplete = () => {
+    setSelectedRecipe(null); // Close the UpdateRecipe form after update
+    fetchRecipes(); // Refresh recipes to show updated data
+  };
 
   return (
     <div className="App">
@@ -74,33 +84,39 @@ function App() {
             className="search-input"
           />
         </div>
-        <button className="add-button">Add Recipe</button>
+        <button className="add-button" onClick={handleAddRecipeClick}>Add Recipe</button>
       </div>
 
-      <div className="recipes">
-      {recipes.map((recipe, index) => {
-  const cardColor = getRandomColor();
-  return (
-    <div
-      key={recipe.id}
-      className="recipe-card"
-      style={{ backgroundColor: cardColor }}
-    >
-      <h2>{recipe.title}</h2>
-      <div className="recipe-info">
-        <p><strong>Ingredients: </strong>{Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}</p>
-        <p><strong>Instructions: </strong>{recipe.instructions}</p>
-        <p><strong>Nutritional facts: </strong>{recipe.nutritionalFacts}</p>
-        <div className="card-buttons">
-          <button style={{ backgroundColor: cardColor }} onClick={() => handleEdit(recipe)}>Edit</button>
-          <button style={{ backgroundColor: cardColor }} onClick={() => handleDelete(recipe._id)}>Delete</button>
+      {showAddForm ? (
+        <AddRecipe onAdd={handleAddComplete} />
+      ) : selectedRecipe ? (
+        <UpdateRecipe recipe={selectedRecipe} onUpdate={handleUpdateComplete} />
+      ) : (
+        <div className="recipes">
+          {recipes.map((recipe, index) => (
+            <div
+              key={recipe._id}
+              className="recipe-card"
+              style={{ backgroundColor: getRandomColor() }}
+              onClick={() => handleCardClick(index)} // Handle card click
+            >
+              <h2>{recipe.title}</h2>
+              <div className="recipe-info">
+                <p><strong>Ingredients: </strong>{Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}</p>
+                <p><strong>Instructions: </strong>{recipe.instructions}</p>
+                <p><strong>Nutritional facts: </strong>{recipe.nutritionalFacts}</p>
+              </div>
+
+              {activeIndex === index && ( // Show buttons only for the active card
+                <div className="card-buttons">
+                  <button onClick={() => handleEditClick(recipe)}>Edit</button>
+                  <button onClick={() => handleDeleteClick(recipe._id)}>Delete</button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
-  );
-})}
-
-      </div>
+      )}
 
       <div className="chatgpt-popup" onClick={() => alert("Chat with us!")}>
         💬
