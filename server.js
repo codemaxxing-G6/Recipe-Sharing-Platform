@@ -1,11 +1,13 @@
 require('dotenv').config();
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const OpenAI = require('openai');
 const RecipeService = require('./services/RecipeService');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Initialize OpenAI client with API key
 const openai = new OpenAI({
@@ -13,12 +15,16 @@ const openai = new OpenAI({
 });
 
 // Set token limit for responses
-const MAX_TOKENS = 150; // This can be adjusted based on response length needed
+const MAX_TOKENS = 1500; // Adjust based on response length needed
 
 // ChatGPT endpoint focused on kitchen-related conversations
 app.post('/chatgpt', async (req, res) => {
   try {
     const { message } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ message: 'Message content is required' });
+    }
 
     // Constructing a kitchen-related prompt for the AI
     const kitchenPrompt = `Provide a kitchen-related answer: ${message}. Answer should be about cooking, recipes, kitchen tips, or ingredients.`;
@@ -30,7 +36,13 @@ app.post('/chatgpt', async (req, res) => {
       max_tokens: MAX_TOKENS, // Limit token count to control response size
     });
 
-    res.json({ reply: response.choices[0].message.content });
+    const replyContent = response?.choices?.[0]?.message?.content;
+
+    if (!replyContent) {
+      return res.status(500).json({ message: 'Failed to get a response from ChatGPT' });
+    }
+
+    res.json({ reply: replyContent });
   } catch (error) {
     console.error('Error interacting with OpenAI:', error);
     res.status(500).json({ message: 'Error interacting with ChatGPT' });
