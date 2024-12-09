@@ -12,10 +12,13 @@ function getRandomColor() {
 
 function App() {
   const [recipes, setRecipes] = useState([]);
+  const [recipeColors, setRecipeColors] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [activeIndex, setActiveIndex] = useState(null); // Track active card clicked
-  const [selectedRecipe, setSelectedRecipe] = useState(null); // Track recipe being edited
-  const [showAddForm, setShowAddForm] = useState(false); // Toggle add form
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [showLoginPage, setShowLoginPage] = useState(false);
+  const [showRegisterPage, setShowRegisterPage] = useState(false);
 
   useEffect(() => {
     fetchRecipes();
@@ -26,6 +29,7 @@ function App() {
       const response = await fetch('/recipes');
       const data = await response.json();
       setRecipes(data);
+      setRecipeColors(data.map(() => getRandomColor()));
     } catch (error) {
       console.error('Error fetching recipes:', error);
     }
@@ -68,57 +72,108 @@ function App() {
     fetchRecipes(); // Refresh recipes to show updated data
   };
 
+  const handleLoginClick = () => {
+    setShowLoginPage(true);
+  };
+
+  const handleRegisterClick = () => {
+    setShowRegisterPage(true);
+  };
+
+  const handleReturnToMain = () => {
+    setShowLoginPage(false);
+    setShowRegisterPage(false);
+  };
+
+  const handleLoginSubmit = () => {
+    //logica login aici
+    handleReturnToMain();
+  };
+
+  const handleRegisterSubmit = () => {
+    //logica register aici
+    handleReturnToMain();
+  };
+
   return (
     <div className="App">
       <header className="header" style={{ backgroundImage: `url(${headerImage})` }}>
-        <h1 className="header-title">Welcome to Recipe App</h1>
+        <h1 className="header-title">Welcome to Birou's Cuisine</h1>
+        {!showLoginPage && !showRegisterPage && (
+          <div className="auth-buttons">
+            <button className="add-button" onClick={handleLoginClick}>Login</button>
+            <button className="add-button" onClick={handleRegisterClick}>Register</button>
+          </div>
+        )}
       </header>
 
-      <div className="navbar">
-        <div className="search-bar">
-          <input
-            type="text"
-            placeholder="Search recipes..."
-            value={searchTerm}
-            onChange={handleSearch}
-            className="search-input"
-          />
+      {showLoginPage ? (
+        <div className="login-page">
+          <form className="form">
+            <h2>Login</h2>
+            <input type="text" placeholder="Username" className="form-input" />
+            <input type="password" placeholder="Password" className="form-input" />
+            <button type="button" className="add-button" onClick={handleLoginSubmit}>Login</button>
+            <button className="add-button" onClick={handleReturnToMain}>Return to Main Page</button>
+          </form>
         </div>
-        <button className="add-button" onClick={handleAddRecipeClick}>Add Recipe</button>
-      </div>
-
-      {showAddForm ? (
+      ) : showRegisterPage ? (
+        <div className="register-page">
+          <form className="form">
+            <h2>Register</h2>
+            <input type="text" placeholder="Username" className="form-input" />
+            <input type="email" placeholder="Email" className="form-input" />
+            <input type="password" placeholder="Password" className="form-input" />
+            <button type="button" className="add-button" onClick={handleRegisterSubmit}>Register</button>
+            <button className="add-button" onClick={handleReturnToMain}>Return to Main Page</button>
+          </form>
+        </div>
+      ) : showAddForm ? (
         <AddRecipe onAdd={handleAddComplete} />
       ) : selectedRecipe ? (
         <UpdateRecipe recipe={selectedRecipe} onUpdate={handleUpdateComplete} />
       ) : (
-        <div className="recipes">
-          {recipes.map((recipe, index) => (
-            <div
-              key={recipe._id}
-              className="recipe-card"
-              style={{ backgroundColor: getRandomColor() }}
-              onClick={() => handleCardClick(index)} // Handle card click
-            >
-              <h2>{recipe.title}</h2>
-              <div className="recipe-info">
-                <p><strong>Ingredients: </strong>{Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}</p>
-                <p><strong>Instructions: </strong>{recipe.instructions}</p>
-                <p><strong>Nutritional facts: </strong>{recipe.nutritionalFacts}</p>
-              </div>
-
-              {activeIndex === index && ( // Show buttons only for the active card
-                <div className="card-buttons">
-                  <button onClick={() => handleEditClick(recipe)}>Edit</button>
-                  <button onClick={() => handleDeleteClick(recipe._id)}>Delete</button>
-                </div>
-              )}
+        <div>
+          <div className="navbar">
+            <div className="search-bar">
+              <input
+                type="text"
+                placeholder="Search recipes..."
+                value={searchTerm}
+                onChange={handleSearch}
+                className="search-input"
+              />
             </div>
-          ))}
+            <button className="add-button" onClick={handleAddRecipeClick}>Add Recipe</button>
+          </div>
+          <div className="recipes">
+            {recipes.map((recipe, index) => (
+              <div
+                key={recipe._id}
+                className="recipe-card"
+                style={{ backgroundColor: recipeColors[index] }}
+                onClick={() => handleCardClick(index)}
+              >
+                <h2>{recipe.title}</h2>
+                <div className="recipe-info">
+                  <p><strong>Ingredients: </strong>{Array.isArray(recipe.ingredients) ? recipe.ingredients.join(', ') : recipe.ingredients}</p>
+                  <p><strong>Instructions: </strong>{recipe.instructions}</p>
+                  <p><strong>Nutritional facts: </strong>{recipe.nutritionalFacts}</p>
+                </div>
+
+                {activeIndex === index && (
+                  <div className="card-buttons">
+                    <button onClick={() => handleEditClick(recipe)}>Edit</button>
+                    <button onClick={() => handleDeleteClick(recipe._id)}>Delete</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      <div className="chatgpt-popup" onClick={() => alert("Chat with us!")}>
+      <div className="chatgpt-popup" onClick={() => alert('Chat with us!')}>
         💬
       </div>
     </div>
